@@ -225,6 +225,7 @@ if ($InstallGlobally) {
         $gitignoreEntries += ".claude/settings.local.json"
     }
     $gitignoreEntries += @(
+        ".pixi/",
         "**/scratch/",
         "**/browser_recordings/",
         "html_artifacts/",

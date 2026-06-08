@@ -17,6 +17,7 @@ env/
 bin/
 obj/
 pkg/
+.pixi/
 
 # Build & Compilation Outputs
 dist/
