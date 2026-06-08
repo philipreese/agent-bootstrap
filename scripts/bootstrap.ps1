@@ -97,8 +97,8 @@ if ($InstallGlobally) {
         $globalConfigBaseForward = $globalConfigBase.Replace("\", "/")
         if (Test-Path $globalAgentsMd) {
             $content = Get-Content $globalAgentsMd -Raw
-            $content = $content -replace "file:///C:/Users/pbree/source/repos/dotfiles/\.agents", "file:///${globalConfigBaseForward}"
-            Set-Content -Path $globalAgentsMd -Value $content -Force
+            $content = $content -replace "file://__PROJECT_ROOT__/\.agents", "file:///${globalConfigBaseForward}"
+            [System.IO.File]::WriteAllText($globalAgentsMd, $content, [System.Text.Encoding]::UTF8)
         }
     }
 
@@ -132,8 +132,8 @@ if ($InstallGlobally) {
         $globalClaudeBaseForward = $globalClaudeBase.Replace("\", "/")
         if (Test-Path $globalClaudeMd) {
             $content = Get-Content $globalClaudeMd -Raw
-            $content = $content -replace "file:///C:/Users/pbree/source/repos/dotfiles/\.claude", "file:///${globalClaudeBaseForward}"
-            Set-Content -Path $globalClaudeMd -Value $content -Force
+            $content = $content -replace "file://__PROJECT_ROOT__/\.claude", "file:///${globalClaudeBaseForward}"
+            [System.IO.File]::WriteAllText($globalClaudeMd, $content, [System.Text.Encoding]::UTF8)
         }
     }
     
@@ -167,8 +167,8 @@ if ($InstallGlobally) {
             $agentsMdPath = Join-Path $resolvedPath "AGENTS.md"
             if (Test-Path $agentsMdPath) {
                 $content = Get-Content $agentsMdPath -Raw
-                $content = $content -replace "file:///C:/Users/pbree/source/repos/dotfiles/\.agents", "file:///${targetForwardSlashes}/.agents"
-                Set-Content -Path $agentsMdPath -Value $content -Force
+                $content = $content -replace "file://__PROJECT_ROOT__", "file:///${targetForwardSlashes}"
+                [System.IO.File]::WriteAllText($agentsMdPath, $content, [System.Text.Encoding]::UTF8)
             }
         } else {
             Write-Host "Target matches dotfiles source. Skipping copying Antigravity templates onto themselves."
@@ -200,8 +200,8 @@ if ($InstallGlobally) {
             $claudeMdPath = Join-Path $resolvedPath "CLAUDE.md"
             if (Test-Path $claudeMdPath) {
                 $content = Get-Content $claudeMdPath -Raw
-                $content = $content -replace "file:///C:/Users/pbree/source/repos/dotfiles/\.claude", "file:///${targetForwardSlashes}/.claude"
-                Set-Content -Path $claudeMdPath -Value $content -Force
+                $content = $content -replace "file://__PROJECT_ROOT__", "file:///${targetForwardSlashes}"
+                [System.IO.File]::WriteAllText($claudeMdPath, $content, [System.Text.Encoding]::UTF8)
             }
         } else {
             Write-Host "Target matches dotfiles source. Skipping copying Claude templates onto themselves."
@@ -245,7 +245,7 @@ if ($InstallGlobally) {
         }
     } else {
         Write-Host "Creating .gitignore..."
-        Set-Content -Path $gitignorePath -Value $gitignoreEntries
+        [System.IO.File]::WriteAllText($gitignorePath, $gitignoreEntries, [System.Text.Encoding]::UTF8)
     }
     
     if (-not (Test-Path (Join-Path $resolvedPath ".git"))) {

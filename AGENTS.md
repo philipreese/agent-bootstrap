@@ -18,13 +18,13 @@ Every task in this repository should follow a strict hierarchy and validation pi
 
 You MUST read and strictly adhere to the guidelines configured inside the `.agents/rules/` directory:
 
-1.  **[01_orchestration_and_routing.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/01_orchestration_and_routing.md)**: Standard protocols for task routing, state tracking, and planning.
-2.  **[02_architectural_design.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/02_architectural_design.md)**: Clean Architecture, SOLID design, contract-first APIs, and DDD.
-3.  **[03_test_driven_development.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/03_test_driven_development.md)**: Strict test-first workflow, test metrics, and test styling.
-4.  **[04_code_hygiene.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/04_code_hygiene.md)**: Strict typing, lint rules, modular structure, and DRY principles.
-5.  **[05_security_and_privacy.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/05_security_and_privacy.md)**: Secret handling, safe coding practices, OWASP mitigation, and dependency safety.
-6.  **[06_independent_validation.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/06_independent_validation.md)**: Functional validation guidelines, black-box verification rules, and automated reporting.
-7.  **[07_git_workflows.md](file:///C:/Users/pbree/source/repos/dotfiles/.agents/rules/07_git_workflows.md)**: Conventional commits, branch naming, and merge standards.
+1.  **[01_orchestration_and_routing.md](file://__PROJECT_ROOT__/.agents/rules/01_orchestration_and_routing.md)**: Standard protocols for task routing, state tracking, and planning.
+2.  **[02_architectural_design.md](file://__PROJECT_ROOT__/.agents/rules/02_architectural_design.md)**: Clean Architecture, SOLID design, contract-first APIs, and DDD.
+3.  **[03_test_driven_development.md](file://__PROJECT_ROOT__/.agents/rules/03_test_driven_development.md)**: Strict test-first workflow, test metrics, and test styling.
+4.  **[04_code_hygiene.md](file://__PROJECT_ROOT__/.agents/rules/04_code_hygiene.md)**: Strict typing, lint rules, modular structure, and DRY principles.
+5.  **[05_security_and_privacy.md](file://__PROJECT_ROOT__/.agents/rules/05_security_and_privacy.md)**: Secret handling, safe coding practices, OWASP mitigation, and dependency safety.
+6.  **[06_independent_validation.md](file://__PROJECT_ROOT__/.agents/rules/06_independent_validation.md)**: Functional validation guidelines, black-box verification rules, and automated reporting.
+7.  **[07_git_workflows.md](file://__PROJECT_ROOT__/.agents/rules/07_git_workflows.md)**: Conventional commits, branch naming, and merge standards.
 
 ---
 
