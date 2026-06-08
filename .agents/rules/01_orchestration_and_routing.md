@@ -10,7 +10,7 @@ Before modifying code:
 3.  **Assign Specialists**: Determine which agent role (Architect, Developer, QA, Security, IV&V) is responsible for each node in the DAG.
 
 ## 3. Subagent Management & Execution
-- When using agentic tools like Antigravity, invoke specialized subagents via `invoke_subagent` for parallelisable tasks.
+- When using agentic tools like Antigravity, invoke specialized subagents via `invoke_subagent` for parallelisable tasks. When using Claude Code, perform tasks within the main session workflow.
 - Keep subagent prompts highly specific, bounded, and outcome-oriented.
 - Always provide the subagent with the local project rules and specific context files needed.
 
