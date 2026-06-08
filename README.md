@@ -56,6 +56,13 @@ To quickly inject this multi-agent structure into any repository:
    powershell -ExecutionPolicy Bypass -File C:\Users\pbree\source\repos\dotfiles\scripts\bootstrap.ps1
    ```
 
+By default, the script will run interactively and prompt you to choose which tool(s) to configure. If run in a non-interactive/CI shell, it defaults to setting up both.
+
+You can also pass the `-Tool` parameter to bypass the prompt:
+*   `-Tool both`: Configures workspace guidelines and ignore rules for both Antigravity and Claude Code (default).
+*   `-Tool antigravity`: Configures only Antigravity CLI files (`.agents/`, `AGENTS.md`, `.antigravityignore`).
+*   `-Tool claude`: Configures only Claude Code files (`.claude/`, `CLAUDE.md`, `.claudeignore`).
+
 The script will copy the rules, skills, agent roles, and verification scripts into your new repository, configure Git hooks, and prepare your project for autonomous validation.
 
 ### 2. Linking Globally
