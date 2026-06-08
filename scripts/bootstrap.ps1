@@ -18,18 +18,26 @@ Write-Host "=================================================="
 Write-Host "Agent Configuration Bootstrapper"
 Write-Host "=================================================="
 
-# Interactive prompting if $Tool is not specified
-if ([string]::IsNullOrEmpty($Tool)) {
-    $isInteractive = $true
-    try {
-        if ([System.Console]::KeyAvailable -eq $false -and [System.Console]::In.GetType().Name -ne 'StreamReader') {
-            $isInteractive = $false
-        }
-    } catch {
-        $isInteractive = $false
+function Test-IsInteractive {
+    # Check for common CI environment variables
+    $ciVars = "CI", "TF_BUILD", "GITHUB_ACTIONS", "GITLAB_CI", "JENKINS_URL"
+    foreach ($var in $ciVars) {
+        if ($null -ne (Get-Item env:$var -ErrorAction SilentlyContinue)) { return $false }
     }
 
-    if ($isInteractive) {
+    # Check for console redirection, explicit switches, or non-interactive environment
+    if ([System.Console]::IsInputRedirected -or 
+        -not [Environment]::UserInteractive -or 
+        ([Environment]::GetCommandLineArgs() -like '-noni*')) {
+        return $false
+    }
+
+    return $true
+}
+
+# Interactive prompting if $Tool is not specified
+if ([string]::IsNullOrEmpty($Tool)) {
+    if (Test-IsInteractive) {
         Write-Host "Which agentic workspace configuration would you like to set up?" -ForegroundColor Cyan
         Write-Host "1) Both Antigravity CLI & Claude Code (Default)"
         Write-Host "2) Antigravity CLI only"
