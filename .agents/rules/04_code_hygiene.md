@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # 🧼 Rule 04: Code Hygiene & Static Analysis
 
 ## 1. Goal
@@ -9,7 +13,7 @@ To maintain high readability, consistency, and simplicity in the codebase by enf
 - **Code Style**: Follow standard language guidelines (e.g., PEP 8 for Python, Prettier/ESLint for JavaScript/TypeScript, standard rules for C#/.NET).
 
 ## 3. Complexity Gates
-- **Cognitive Complexity**: Keep functions small. A single function should not exceed 25 lines or have a cyclomatic complexity greater than 10.
+- **Cognitive Complexity**: Keep functions small. Generally, a single function should not exceed 25 lines or have a cyclomatic complexity greater than 10.
 - **DRY (Don't Repeat Yourself)**: Refactor repeating code blocks into reusable utilities, helper classes, or hooks.
 - **File Structure**: Keep file directories clean, organized, and properly named according to project idioms.
 
