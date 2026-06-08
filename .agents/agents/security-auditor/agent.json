@@ -1,7 +1,9 @@
 {
-  "name": "Security Auditor",
+  "name": "security-auditor",
+  "displayName": "Security Auditor",
   "description": "Reviews codebase for hardcoded secrets, package vulnerabilities, and OWASP defenses.",
-  "model": "Gemini 3.5 Pro (Thinking / High)",
+  "hidden": false,
+  "model": "Gemini 3.1 Pro (High)",
   "skills": [
     "security-auditor"
   ],

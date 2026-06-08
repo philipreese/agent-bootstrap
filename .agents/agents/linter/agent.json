@@ -1,6 +1,8 @@
 {
-  "name": "Linter",
+  "name": "linter",
+  "displayName": "Linter",
   "description": "Performs linting, formatting checks, and measures code hygiene and complexity.",
+  "hidden": false,
   "model": "Gemini 3.5 Flash (Low)",
   "skills": [
     "code-quality-auditor"

@@ -17,19 +17,21 @@ Write-Host "Antigravity Agent Configuration Bootstrapper"
 Write-Host "=================================================="
 
 if ($InstallGlobally) {
-    $globalConfigBase = Join-Path $env:USERPROFILE ".gemini\config"
+    $globalConfigBase = Join-Path $env:USERPROFILE ".gemini\antigravity-cli"
     Write-Host "Installing configurations globally into $globalConfigBase..."
     
     $globalSkillsPath = Join-Path $globalConfigBase "skills"
     $globalAgentsPath = Join-Path $globalConfigBase "agents"
+    $globalRulesPath = Join-Path $globalConfigBase "rules"
     
     if (-not (Test-Path $globalSkillsPath)) { New-Item -ItemType Directory -Path $globalSkillsPath -Force | Out-Null }
     if (-not (Test-Path $globalAgentsPath)) { New-Item -ItemType Directory -Path $globalAgentsPath -Force | Out-Null }
+    if (-not (Test-Path $globalRulesPath)) { New-Item -ItemType Directory -Path $globalRulesPath -Force | Out-Null }
     
     $rulesSource = Join-Path $dotfilesRoot ".agents\rules"
     if (Test-Path $rulesSource) {
-        Write-Host "Copying rules to $globalAgentsPath..."
-        Copy-Item -Path "$rulesSource\*" -Destination $globalAgentsPath -Recurse -Force
+        Write-Host "Copying rules to $globalRulesPath..."
+        Copy-Item -Path "$rulesSource\*" -Destination $globalRulesPath -Recurse -Force
     }
     
     $agentsSource = Join-Path $dotfilesRoot ".agents\agents"

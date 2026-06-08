@@ -1,7 +1,9 @@
 {
-  "name": "IV&V Verifier",
+  "name": "iv-v-verifier",
+  "displayName": "IV&V Verifier",
   "description": "Independently validates that implementation satisfies requirements and prints reports.",
-  "model": "Gemini 3.5 Pro (Low)",
+  "hidden": false,
+  "model": "Gemini 3.1 Pro (Low)",
   "skills": [
     "iv-v-verifier"
   ],
