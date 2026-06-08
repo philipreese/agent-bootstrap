@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # 🗺️ Rule 01: Orchestration & Agent Routing
 
 ## 1. Goal
@@ -10,7 +14,11 @@ Before modifying code:
 3.  **Assign Specialists**: Determine which agent role (Architect, Developer, QA, Security, IV&V) is responsible for each node in the DAG.
 
 ## 3. Subagent Management & Execution
-- When using agentic tools like Antigravity, invoke specialized subagents via `invoke_subagent` for parallelisable tasks. When using Claude Code, perform tasks within the main session workflow.
+- **Default to Self-Perform**: The Orchestrator should execute atomic, linear, or straightforward tasks directly within the main session workflow to optimize token efficiency and minimize orchestration latency.
+- **Conditional Delegation**: ONLY invoke specialized subagents via `invoke_subagent` if the task meets at least one of the following criteria:
+  1. It requires massive, parallelisable execution paths that can run concurrently.
+  2. It demands a hard context pivot or distinct role-based perspective (e.g., an objective black-box verification pass by the IV&V Verifier).
+  3. The complexity or token size of the sub-task threatens to pollute the main orchestrator’s active context window.
 - Keep subagent prompts highly specific, bounded, and outcome-oriented.
 - Always provide the subagent with the local project rules and specific context files needed.
 
