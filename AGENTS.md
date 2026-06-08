@@ -9,10 +9,8 @@ Every task in this repository should follow a strict hierarchy and validation pi
 1.  **Orchestrator Agent**: Manages the overarching workflow, decomposes tasks, creates/updates plans, and schedules subagents (e.g., using `invoke_subagent` if supported, or sequentially).
 2.  **Architect Agent**: Formulates technical specifications, data models, schema definitions, and APIs prior to coding.
 3.  **Developer Agent**: Translates architectural specifications into code.
-4.  **Static Analysis & Quality Agent**: Validates syntax, lint rules, code formatting, and complexity.
-5.  **TDD & Testing Agent**: Runs unit/integration tests and enforces test coverage requirements.
-6.  **Security & Safety Auditor**: Reviews code for secrets, input vulnerabilities, and dependency security.
-7.  **Independent Validation & Verification (IV&V) Agent**: Executes E2E, black-box checks and ensures that implementation matches original requirements without developer bias.
+4.  **Quality Auditor Agent**: Enforces code hygiene, executes unit/integration tests, and audits security vulnerabilities or secrets.
+5.  **Independent Validation & Verification (IV&V) Agent**: Executes E2E, black-box checks and ensures that implementation matches original requirements without developer bias.
 
 ---
 

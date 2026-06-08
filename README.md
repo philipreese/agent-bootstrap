@@ -32,9 +32,8 @@ Configures and maintains aligned system instructions, ignoring patterns, and spe
 
 ### 2. Token-Optimized Model Routing (Antigravity)
 To prevent token over-consumption, agent roles are assigned to specific Gemini models based on task complexity:
-*   **Gemini 3.5 Flash (Low)**: Draws down **50% fewer credits/tokens** than standard Flash. Assigned to `Linter` and `Tester` roles for repetitive syntax and test runs.
-*   **Gemini 3.5 Pro (Low)**: Bypasses high-overhead thinking token pools. Assigned to `Architect` and `IV&V Verifier` roles for robust logic without heavy premium multiples.
-*   **Gemini 3.5 Pro (Thinking / High)**: Reserved exclusively for `Security Auditor` where deep reasoning is essential to block leakages or vulnerabilities.
+*   **Gemini 3.5 Flash (Low)**: Draws down **50% fewer credits/tokens** than standard Flash. Assigned to the `Quality Auditor` role for fast, low-cost static analysis, formatting checks, and test runs.
+*   **Gemini 3.5 Pro (Low)**: Bypasses high-overhead thinking token pools. Assigned to `Architect` and `IV&V Verifier` roles for robust logic and system architecture without heavy premium multiples.
 
 ### 3. Context Overhead Reduction (`.antigravityignore` & `.claudeignore`)
 Automatically configured in bootstrapped projects to prevent the AI from indexing or reading large dependency, cache, build, or media folders (such as `node_modules/`, `bin/`, `obj/`, `venv/`, `dist/`), saving thousands of context tokens on every query.
