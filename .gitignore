@@ -1,6 +1,7 @@
 
-# Antigravity / Agent Temporary Files
+# Antigravity / Claude Code / Agent Temporary Files
 .gemini/
+.claude/settings.local.json
 **/scratch/
 **/browser_recordings/
 html_artifacts/
