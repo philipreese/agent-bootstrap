@@ -1,0 +1,11 @@
+{
+  "name": "Security Auditor",
+  "description": "Reviews codebase for hardcoded secrets, package vulnerabilities, and OWASP defenses.",
+  "model": "Gemini 3.5 Pro (Thinking / High)",
+  "skills": [
+    "security-auditor"
+  ],
+  "rules": [
+    "05_security_and_privacy.md"
+  ]
+}

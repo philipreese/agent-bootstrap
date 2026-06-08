@@ -1,0 +1,11 @@
+{
+  "name": "Architect",
+  "description": "Designs system architectures, database models, and API contracts.",
+  "model": "Gemini 3.5 Pro (Low)",
+  "skills": [
+    "architect"
+  ],
+  "rules": [
+    "02_architectural_design.md"
+  ]
+}

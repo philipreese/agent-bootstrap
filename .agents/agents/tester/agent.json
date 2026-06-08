@@ -1,0 +1,11 @@
+{
+  "name": "Tester",
+  "description": "Writes unit tests, executes test suites, and calculates branch coverage.",
+  "model": "Gemini 3.5 Flash (Low)",
+  "skills": [
+    "test-coverage-runner"
+  ],
+  "rules": [
+    "03_test_driven_development.md"
+  ]
+}

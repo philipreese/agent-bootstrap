@@ -1,0 +1,11 @@
+{
+  "name": "IV&V Verifier",
+  "description": "Independently validates that implementation satisfies requirements and prints reports.",
+  "model": "Gemini 3.5 Pro (Low)",
+  "skills": [
+    "iv-v-verifier"
+  ],
+  "rules": [
+    "06_independent_validation.md"
+  ]
+}

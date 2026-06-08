@@ -1,0 +1,11 @@
+
+# Antigravity / Agent Temporary Files
+.gemini/
+**/scratch/
+**/browser_recordings/
+html_artifacts/
+task.md
+implementation_plan.md
+walkthrough.md
+.env
+.env.local
