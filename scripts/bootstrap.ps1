@@ -119,7 +119,7 @@ if ($InstallGlobally) {
         $preCommitFile = Join-Path $gitHooksDir "pre-commit"
         Write-Host "Configuring Git pre-commit hook..."
         $hookContent = "#!/bin/sh`n# Run the project verification pipeline before commit`npowershell.exe -ExecutionPolicy Bypass -File ./scripts/verify-project.ps1`nif [ `$? -ne 0 ]; then`n    echo 'Pre-commit verification failed! Commit aborted.'`n    exit 1`nfi`n"
-        [System.IO.File]::WriteAllText($preCommitFile, $hookContent)
+        [System.IO.File]::WriteAllBytes($preCommitFile, [System.Text.Encoding]::UTF8.GetBytes($hookContent))
     }
     
     Write-Host "Local project bootstrap configuration complete!"
