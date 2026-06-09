@@ -1,13 +1,17 @@
+<#
+.SYNOPSIS
+    Bootstraps Claude Code workspace configuration into a target project or globally.
+.DESCRIPTION
+    Copies CLAUDE.md, .claudeignore, .claude/ scaffolding, and verify-project.ps1 into
+    a target repository and wires up the Git pre-commit hook.
+#>
 param(
     [string]$TargetPath = ".",
-    [switch]$InstallGlobally,
-    [ValidateSet("both", "antigravity", "claude")]
-    [string]$Tool
+    [switch]$InstallGlobally
 )
 
 $ErrorActionPreference = "Stop"
 
-# Determine dotfiles root directory
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ([string]::IsNullOrEmpty($scriptDir)) {
     $scriptDir = (Get-Location).Path
@@ -15,216 +19,72 @@ if ([string]::IsNullOrEmpty($scriptDir)) {
 $dotfilesRoot = (Get-Item (Join-Path $scriptDir "..")).FullName
 
 Write-Host "=================================================="
-Write-Host "Agent Configuration Bootstrapper"
+Write-Host "Claude Code Workspace Bootstrapper"
 Write-Host "=================================================="
 
-function Test-IsInteractive {
-    # Check for common CI environment variables
-    $ciVars = "CI", "TF_BUILD", "GITHUB_ACTIONS", "GITLAB_CI", "JENKINS_URL"
-    foreach ($var in $ciVars) {
-        if ($null -ne (Get-Item env:$var -ErrorAction SilentlyContinue)) { return $false }
-    }
-
-    # Check for console redirection, explicit switches, or non-interactive environment
-    if ([System.Console]::IsInputRedirected -or 
-        -not [Environment]::UserInteractive -or 
-        ([Environment]::GetCommandLineArgs() -like '-noni*')) {
-        return $false
-    }
-
-    return $true
-}
-
-# Interactive prompting if $Tool is not specified
-if ([string]::IsNullOrEmpty($Tool)) {
-    if (Test-IsInteractive) {
-        Write-Host "Which agentic workspace configuration would you like to set up?" -ForegroundColor Cyan
-        Write-Host "1) Both Antigravity CLI & Claude Code (Default)"
-        Write-Host "2) Antigravity CLI only"
-        Write-Host "3) Claude Code only"
-        $choice = Read-Host "Select option [1-3]"
-        switch ($choice) {
-            "2" { $Tool = "antigravity" }
-            "3" { $Tool = "claude" }
-            default { $Tool = "both" }
-        }
-    } else {
-        $Tool = "both"
-    }
-}
-
-$setupAntigravity = ($Tool -eq "both" -or $Tool -eq "antigravity")
-$setupClaude = ($Tool -eq "both" -or $Tool -eq "claude")
-
-Write-Host "Configuration Mode: $Tool" -ForegroundColor Green
-
 if ($InstallGlobally) {
-    if ($setupAntigravity) {
-        # Antigravity Global Setup
-        $globalConfigBase = Join-Path $env:USERPROFILE ".gemini\antigravity-cli"
-        Write-Host "Installing Antigravity configurations globally into $globalConfigBase..."
-        
-        $globalSkillsPath = Join-Path $globalConfigBase "skills"
-        $globalAgentsPath = Join-Path $globalConfigBase "agents"
-        $globalRulesPath = Join-Path $globalConfigBase "rules"
-        
-        if (-not (Test-Path $globalSkillsPath)) { New-Item -ItemType Directory -Path $globalSkillsPath -Force | Out-Null }
-        if (-not (Test-Path $globalAgentsPath)) { New-Item -ItemType Directory -Path $globalAgentsPath -Force | Out-Null }
-        if (-not (Test-Path $globalRulesPath)) { New-Item -ItemType Directory -Path $globalRulesPath -Force | Out-Null }
-        
-        $rulesSource = Join-Path $dotfilesRoot ".agents\rules"
-        if (Test-Path $rulesSource) {
-            Write-Host "Copying rules to Antigravity global rules path..."
-            Copy-Item -Path "$rulesSource\*" -Destination $globalRulesPath -Recurse -Force
-        }
-        
-        $agentsSource = Join-Path $dotfilesRoot ".agents\agents"
-        if (Test-Path $agentsSource) {
-            Write-Host "Copying agent configurations to Antigravity global agents path..."
-            Copy-Item -Path "$agentsSource\*" -Destination $globalAgentsPath -Recurse -Force
-        }
-        
-        $skillsSource = Join-Path $dotfilesRoot ".agents\skills"
-        if (Test-Path $skillsSource) {
-            Write-Host "Copying skills to Antigravity global skills path..."
-            Copy-Item -Path "$skillsSource\*" -Destination $globalSkillsPath -Recurse -Force
-        }
+    $globalClaudeBase = Join-Path $env:USERPROFILE ".claude"
+    Write-Host "Installing Claude Code configurations globally into $globalClaudeBase..."
 
-        Write-Host "Copying global AGENTS.md..."
-        $globalAgentsMd = Join-Path $globalConfigBase "AGENTS.md"
-        Copy-Item -Path (Join-Path $dotfilesRoot "AGENTS.md") -Destination $globalAgentsMd -Force
+    if (-not (Test-Path $globalClaudeBase)) { New-Item -ItemType Directory -Path $globalClaudeBase -Force | Out-Null }
 
-        $globalConfigBaseForward = $globalConfigBase.Replace("\", "/")
-        if (Test-Path $globalAgentsMd) {
-            $content = Get-Content $globalAgentsMd -Raw
-            $content = $content -replace "file://__PROJECT_ROOT__/\.agents", "file:///${globalConfigBaseForward}"
-            [System.IO.File]::WriteAllText($globalAgentsMd, $content, [System.Text.Encoding]::UTF8)
-        }
+    Write-Host "Copying CLAUDE.md..."
+    $globalClaudeMd = Join-Path $globalClaudeBase "CLAUDE.md"
+    Copy-Item -Path (Join-Path $dotfilesRoot "CLAUDE.md") -Destination $globalClaudeMd -Force
+
+    $globalClaudeBaseForward = $globalClaudeBase.Replace("\", "/")
+    if (Test-Path $globalClaudeMd) {
+        $content = Get-Content $globalClaudeMd -Raw
+        $content = $content -replace "file://__PROJECT_ROOT__/\.claude", "file:///${globalClaudeBaseForward}"
+        [System.IO.File]::WriteAllText($globalClaudeMd, $content, [System.Text.Encoding]::UTF8)
     }
 
-    if ($setupClaude) {
-        # Claude Code Global Setup
-        $globalClaudeBase = Join-Path $env:USERPROFILE ".claude"
-        Write-Host "Installing Claude Code configurations globally into $globalClaudeBase..."
-        
-        $globalClaudeSkillsPath = Join-Path $globalClaudeBase "skills"
-        $globalClaudeRulesPath = Join-Path $globalClaudeBase "rules"
-        
-        if (-not (Test-Path $globalClaudeSkillsPath)) { New-Item -ItemType Directory -Path $globalClaudeSkillsPath -Force | Out-Null }
-        if (-not (Test-Path $globalClaudeRulesPath)) { New-Item -ItemType Directory -Path $globalClaudeRulesPath -Force | Out-Null }
-        
-        $rulesSource = Join-Path $dotfilesRoot ".agents\rules"
-        if (Test-Path $rulesSource) {
-            Write-Host "Copying rules to Claude global rules path..."
-            Copy-Item -Path "$rulesSource\*" -Destination $globalClaudeRulesPath -Recurse -Force
-        }
-        
-        $skillsSource = Join-Path $dotfilesRoot ".agents\skills"
-        if (Test-Path $skillsSource) {
-            Write-Host "Copying skills to Claude global skills path..."
-            Copy-Item -Path "$skillsSource\*" -Destination $globalClaudeSkillsPath -Recurse -Force
-        }
-
-        Write-Host "Copying global CLAUDE.md..."
-        $globalClaudeMd = Join-Path $globalClaudeBase "CLAUDE.md"
-        Copy-Item -Path (Join-Path $dotfilesRoot "CLAUDE.md") -Destination $globalClaudeMd -Force
-
-        $globalClaudeBaseForward = $globalClaudeBase.Replace("\", "/")
-        if (Test-Path $globalClaudeMd) {
-            $content = Get-Content $globalClaudeMd -Raw
-            $content = $content -replace "file://__PROJECT_ROOT__/\.claude", "file:///${globalClaudeBaseForward}"
-            [System.IO.File]::WriteAllText($globalClaudeMd, $content, [System.Text.Encoding]::UTF8)
-        }
-    }
-    
-    Write-Host "Global bootstrap installation complete!"
+    Write-Host "Global installation complete!" -ForegroundColor Green
 } else {
     $resolvedPath = (Resolve-Path $TargetPath).Path
-    Write-Host "Bootstrapping local project workspace: $resolvedPath"
-    
-    $localScriptsPath = Join-Path $resolvedPath "scripts"
-    if (-not (Test-Path $localScriptsPath)) { New-Item -ItemType Directory -Path $localScriptsPath -Force | Out-Null }
+    Write-Host "Bootstrapping project workspace: $resolvedPath"
 
     $targetForwardSlashes = $resolvedPath.Replace("\", "/")
-    
-    if ($setupAntigravity) {
-        $localAgentsPath = Join-Path $resolvedPath ".agents"
-        if (-not (Test-Path $localAgentsPath)) { New-Item -ItemType Directory -Path $localAgentsPath -Force | Out-Null }
-        
-        $dotfilesAgentsResolved = (Resolve-Path (Join-Path $dotfilesRoot ".agents") -ErrorAction SilentlyContinue).Path
-        $destAgentsResolved = (Resolve-Path $localAgentsPath -ErrorAction SilentlyContinue).Path
-        
-        if ($null -ne $dotfilesAgentsResolved -and $dotfilesAgentsResolved -ne $destAgentsResolved) {
-            Write-Host "Copying rules, agents, and skills templates for Antigravity..."
-            Copy-Item -Path (Join-Path $dotfilesRoot ".agents\*") -Destination $localAgentsPath -Recurse -Force
-            
-            Write-Host "Copying AGENTS.md..."
-            Copy-Item -Path (Join-Path $dotfilesRoot "AGENTS.md") -Destination $resolvedPath -Force
-            
-            Write-Host "Copying .antigravityignore..."
-            Copy-Item -Path (Join-Path $dotfilesRoot ".antigravityignore") -Destination $resolvedPath -Force
-            
-            $agentsMdPath = Join-Path $resolvedPath "AGENTS.md"
-            if (Test-Path $agentsMdPath) {
-                $content = Get-Content $agentsMdPath -Raw
-                $content = $content -replace "file://__PROJECT_ROOT__", "file:///${targetForwardSlashes}"
-                [System.IO.File]::WriteAllText($agentsMdPath, $content, [System.Text.Encoding]::UTF8)
-            }
-        } else {
-            Write-Host "Target matches dotfiles source. Skipping copying Antigravity templates onto themselves."
-        }
+
+    # Create .claude/ scaffold
+    $localClaudePath = Join-Path $resolvedPath ".claude"
+    if (-not (Test-Path $localClaudePath)) { New-Item -ItemType Directory -Path $localClaudePath -Force | Out-Null }
+
+    $dotfilesClaudeResolved = (Resolve-Path (Join-Path $dotfilesRoot ".claude") -ErrorAction SilentlyContinue).Path
+    $destClaudeResolved = (Resolve-Path $localClaudePath -ErrorAction SilentlyContinue).Path
+
+    if ($null -ne $dotfilesClaudeResolved -and $dotfilesClaudeResolved -ne $destClaudeResolved) {
+        Write-Host "Copying .claude/ contents..."
+        Copy-Item -Path (Join-Path $dotfilesRoot ".claude\*") -Destination $localClaudePath -Recurse -Force
+    } else {
+        Write-Host "Target matches dotfiles source. Skipping .claude/ copy."
     }
 
-    if ($setupClaude) {
-        $localClaudePath = Join-Path $resolvedPath ".claude"
-        if (-not (Test-Path $localClaudePath)) { New-Item -ItemType Directory -Path $localClaudePath -Force | Out-Null }
-        
-        $dotfilesAgentsResolved = (Resolve-Path (Join-Path $dotfilesRoot ".agents") -ErrorAction SilentlyContinue).Path
-        $destClaudeResolved = (Resolve-Path $localClaudePath -ErrorAction SilentlyContinue).Path
-        
-        if ($null -ne $dotfilesAgentsResolved -and $dotfilesAgentsResolved -ne $destClaudeResolved) {
-            Write-Host "Copying rules and skills templates for Claude Code..."
-            $localClaudeRules = Join-Path $localClaudePath "rules"
-            $localClaudeSkills = Join-Path $localClaudePath "skills"
-            if (-not (Test-Path $localClaudeRules)) { New-Item -ItemType Directory -Path $localClaudeRules -Force | Out-Null }
-            if (-not (Test-Path $localClaudeSkills)) { New-Item -ItemType Directory -Path $localClaudeSkills -Force | Out-Null }
-            Copy-Item -Path (Join-Path $dotfilesRoot ".agents\rules\*") -Destination $localClaudeRules -Recurse -Force
-            Copy-Item -Path (Join-Path $dotfilesRoot ".agents\skills\*") -Destination $localClaudeSkills -Recurse -Force
-            
-            Write-Host "Copying CLAUDE.md..."
-            Copy-Item -Path (Join-Path $dotfilesRoot "CLAUDE.md") -Destination $resolvedPath -Force
-            
-            Write-Host "Copying .claudeignore..."
-            Copy-Item -Path (Join-Path $dotfilesRoot ".claudeignore") -Destination $resolvedPath -Force
-            
-            $claudeMdPath = Join-Path $resolvedPath "CLAUDE.md"
-            if (Test-Path $claudeMdPath) {
-                $content = Get-Content $claudeMdPath -Raw
-                $content = $content -replace "file://__PROJECT_ROOT__", "file:///${targetForwardSlashes}"
-                [System.IO.File]::WriteAllText($claudeMdPath, $content, [System.Text.Encoding]::UTF8)
-            }
-        } else {
-            Write-Host "Target matches dotfiles source. Skipping copying Claude templates onto themselves."
-        }
+    Write-Host "Copying CLAUDE.md..."
+    Copy-Item -Path (Join-Path $dotfilesRoot "CLAUDE.md") -Destination $resolvedPath -Force
+
+    $claudeMdPath = Join-Path $resolvedPath "CLAUDE.md"
+    if (Test-Path $claudeMdPath) {
+        $content = Get-Content $claudeMdPath -Raw
+        $content = $content -replace "file://__PROJECT_ROOT__", "file:///${targetForwardSlashes}"
+        [System.IO.File]::WriteAllText($claudeMdPath, $content, [System.Text.Encoding]::UTF8)
     }
-    
+
+    Write-Host "Copying .claudeignore..."
+    Copy-Item -Path (Join-Path $dotfilesRoot ".claudeignore") -Destination $resolvedPath -Force
+
     # Copy verification script
-    Write-Host "Copying verification script..."
+    $localScriptsPath = Join-Path $resolvedPath "scripts"
+    if (-not (Test-Path $localScriptsPath)) { New-Item -ItemType Directory -Path $localScriptsPath -Force | Out-Null }
+    Write-Host "Copying verify-project.ps1..."
     Copy-Item -Path (Join-Path $dotfilesRoot "scripts\verify-project.ps1") -Destination $localScriptsPath -Force
-    
-    # Configure gitignore
+
+    # Configure .gitignore
     $gitignorePath = Join-Path $resolvedPath ".gitignore"
     $gitignoreEntries = @(
         "",
-        "# AI Agent / Verification Temporary Files"
-    )
-    if ($setupAntigravity) {
-        $gitignoreEntries += ".gemini/"
-    }
-    if ($setupClaude) {
-        $gitignoreEntries += ".claude/settings.local.json"
-    }
-    $gitignoreEntries += @(
+        "# AI Agent / Verification Temporary Files",
+        ".claude/settings.local.json",
         ".pixi/",
         "**/scratch/",
         "**/browser_recordings/",
@@ -235,9 +95,9 @@ if ($InstallGlobally) {
         ".env",
         ".env.local"
     )
-    
+
     if (Test-Path $gitignorePath) {
-        Write-Host "Modifying .gitignore..."
+        Write-Host "Updating .gitignore..."
         $existingContent = Get-Content $gitignorePath
         $newEntries = $gitignoreEntries | Where-Object { $existingContent -notcontains $_ }
         if ($newEntries.Count -gt 0) {
@@ -245,18 +105,19 @@ if ($InstallGlobally) {
         }
     } else {
         Write-Host "Creating .gitignore..."
-        [System.IO.File]::WriteAllText($gitignorePath, $gitignoreEntries, [System.Text.Encoding]::UTF8)
+        [System.IO.File]::WriteAllText($gitignorePath, ($gitignoreEntries -join "`n"), [System.Text.Encoding]::UTF8)
     }
-    
+
+    # Initialize git if needed
     if (-not (Test-Path (Join-Path $resolvedPath ".git"))) {
         Write-Host "Initializing Git repository..."
         try {
             Start-Process -FilePath "git" -ArgumentList "init" -WorkingDirectory $resolvedPath -NoNewWindow -Wait
         } catch {
-            Write-Warning "Could not automatically run 'git init'. Ensure Git is installed and available in PATH."
+            Write-Warning "Could not run 'git init'. Ensure Git is installed and in PATH."
         }
     }
-    
+
     # Configure Git pre-commit hook
     $gitHooksDir = Join-Path $resolvedPath ".git\hooks"
     if (Test-Path $gitHooksDir) {
@@ -265,7 +126,7 @@ if ($InstallGlobally) {
         $hookContent = "#!/bin/sh`n# Run the project verification pipeline before commit`npowershell.exe -ExecutionPolicy Bypass -File ./scripts/verify-project.ps1`nif [ `$? -ne 0 ]; then`n    echo 'Pre-commit verification failed! Commit aborted.'`n    exit 1`nfi`n"
         [System.IO.File]::WriteAllBytes($preCommitFile, [System.Text.Encoding]::UTF8.GetBytes($hookContent))
     }
-    
-    Write-Host "Local project bootstrap configuration complete!"
+
+    Write-Host "Bootstrap complete!" -ForegroundColor Green
 }
 Write-Host "=================================================="

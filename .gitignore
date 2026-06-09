@@ -1,6 +1,5 @@
 
-# Antigravity / Claude Code / Agent Temporary Files
-.gemini/
+# Claude Code / Agent Temporary Files
 .claude/settings.local.json
 .pixi/
 **/scratch/

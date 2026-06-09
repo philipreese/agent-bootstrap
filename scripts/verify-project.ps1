@@ -137,13 +137,12 @@ function Verify-GitAndWorkflow {
         Write-Warning "Failed to check Git branch: $_"
     }
 
-    # 2. Conventional Commit checks on the last local commit
+    # 2. Conventional Commit checks on the last local commit (Warning only to avoid blocking future commits during pre-commit hooks)
     try {
         $lastCommitMsg = (git log -n 1 --format=%s).Trim()
         if ($lastCommitMsg -match '^[a-z]+(\([a-zA-Z0-9_-]+\))?:\s[A-Z]') {
             if ($lastCommitMsg -match '\.$') {
                 Write-Warning "[CRITICAL] Conventional Commit standard violated: Commit message should not end with a period."
-                $Global:HasErrors = $true
             } else {
                 Write-Host "[+] Conventional Commit check passed ($lastCommitMsg)." -ForegroundColor Green
             }
@@ -151,7 +150,6 @@ function Verify-GitAndWorkflow {
             Write-Warning "[CRITICAL] Conventional Commit standard violated! Commit message description MUST start with a CAPITAL letter."
             Write-Warning "  Current message: '$lastCommitMsg'"
             Write-Warning "  Expected format: 'type(scope): Capitalized Description'"
-            $Global:HasErrors = $true
         }
     } catch {
         Write-Warning "Failed to check last Git commit message: $_"

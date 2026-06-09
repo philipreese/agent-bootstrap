@@ -1,75 +1,58 @@
-# 🌌 Agentic Workspace Dotfiles: Multi-Agent Workspace Bootstrap Template
+# Agentic Workspace Dotfiles: Claude Code Bootstrap Template
 
-A production-grade, state-of-the-art configuration template for solo software developers seeking to optimize their workflow using agentic coding tools like **Google Antigravity**, **Claude Code**, or **Cursor**.
-
-This repository contains a full set of custom system instructions, specialized agent skills, safety constraints, quality gates, and automated scripts that turn any codebase into a tool-agnostic, AI-native workspace.
+A configuration template for solo software developers using **Claude Code** (VSCode extension or CLI). Contains system instructions, safety constraints, quality gates, and automated scripts that turn any codebase into an AI-native workspace.
 
 ---
 
-## 🛠️ Repository Layout & Bootstrapped Structure
-
-When you bootstrap a project, the following structures and files are created/configured:
+## Repository Layout
 
 ```text
-├── .agents/                         # Antigravity local rules, skills, and agent configs
-├── .claude/                         # Claude Code local rules and skills
+├── .claude/                         # Claude Code local rules and skills (created by bootstrap)
 ├── scripts/
-│   ├── bootstrap.ps1                # Bootstrap workspace / Link configs globally
+│   ├── bootstrap.ps1                # Bootstrap workspace / link configs globally
 │   └── verify-project.ps1           # Project validation runner
-├── .antigravityignore               # Blocks indexing of unwanted/heavy folders (Antigravity)
-├── .claudeignore                    # Blocks indexing of unwanted/heavy folders (Claude Code)
-├── AGENTS.md                        # Root instruction manual for Antigravity CLI
+├── .claudeignore                    # Blocks indexing of heavy/irrelevant folders
 ├── CLAUDE.md                        # Root instruction manual for Claude Code
 └── README.md                        # This file
 ```
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-### 1. Tool-Agnostic Support (Antigravity & Claude Code)
-Configures and maintains aligned system instructions, ignoring patterns, and specialized agent capabilities for both Antigravity CLI and Claude Code, ensuring a seamless experience regardless of the tool.
+### 1. Context Overhead Reduction (`.claudeignore`)
+Prevents Claude Code from indexing large dependency, cache, build, or media folders (`node_modules/`, `bin/`, `obj/`, `.venv/`, `dist/`), saving context tokens on every query.
 
-### 2. Token-Optimized Model Routing (Antigravity)
-To prevent token over-consumption, agent roles are assigned to specific Gemini models based on task complexity:
-*   **Gemini 3.5 Flash (Low)**: Draws down **50% fewer credits/tokens** than standard Flash. Assigned to the `Quality Auditor` role for fast, low-cost static analysis, formatting checks, and test runs.
-*   **Gemini 3.5 Pro (Low)**: Bypasses high-overhead thinking token pools. Assigned to `Architect` and `IV&V Verifier` roles for robust logic and system architecture without heavy premium multiples.
+### 2. Git Pre-Commit Hook Integration
+The bootstrapper registers a local Git `pre-commit` hook that runs `verify-project.ps1`.
+- If code contains syntax errors, failing tests, or hardcoded secrets, Git will **abort the commit**.
+- Runs locally for free — no agent tokens consumed for basic quality gates.
 
-### 3. Context Overhead Reduction (`.antigravityignore` & `.claudeignore`)
-Automatically configured in bootstrapped projects to prevent the AI from indexing or reading large dependency, cache, build, or media folders (such as `node_modules/`, `bin/`, `obj/`, `venv/`, `dist/`), saving thousands of context tokens on every query.
-
-### 4. Git Pre-Commit Hook Integration
-The bootstrapper automatically registers a local Git `pre-commit` hook that runs `verify-project.ps1`.
-*   If your code contains syntax errors, unformatted blocks, failing tests, or hardcoded secrets, Git will **abort the commit**.
-*   This quality gate executes locally on your CPU for **free**, ensuring code is clean before committing without triggering expensive agent audit loops.
+### 3. Quality Rules via `CLAUDE.md`
+A concise set of workspace rules loaded into every Claude Code conversation:
+- Conventional commits and branch naming (no direct commits to `main`)
+- Contract-first architecture (define schemas before implementing)
+- 80% branch coverage requirement
+- Strict typing (no `any` / unannotated Python)
+- No hardcoded secrets
+- Docs sync (`README.md` + `CHANGELOG.md`) on every change
 
 ---
 
-## 💻 Getting Started
+## Getting Started
 
-### 1. Bootstrapping a New Project
-To quickly inject this multi-agent structure into any repository:
+### Bootstrapping a New Project
 1. Open PowerShell in the target repository directory.
 2. Run the bootstrap script pointing to your `dotfiles` checkout:
    ```powershell
    powershell -ExecutionPolicy Bypass -File C:\Users\pbree\source\repos\dotfiles\scripts\bootstrap.ps1
    ```
 
-By default, the script will run interactively and prompt you to choose which tool(s) to configure. If run in a non-interactive/CI shell, it defaults to setting up both.
+This copies rules, skills, and the verification script into your repository and configures the Git pre-commit hook.
 
-You can also pass the `-Tool` parameter to bypass the prompt:
-*   `-Tool both`: Configures workspace guidelines and ignore rules for both Antigravity and Claude Code (default).
-*   `-Tool antigravity`: Configures only Antigravity CLI files (`.agents/`, `AGENTS.md`, `.antigravityignore`).
-*   `-Tool claude`: Configures only Claude Code files (`.claude/`, `CLAUDE.md`, `.claudeignore`).
-
-The script will copy the rules, skills, agent roles, and verification scripts into your new repository, configure Git hooks, and prepare your project for autonomous validation.
-
-### 2. Linking Globally
-If you want these rules, skills, and token-optimized agent roles to be active across **all** agent sessions on your machine:
-Run the bootstrap script inside the `dotfiles` directory with the `-InstallGlobally` switch:
+### Linking Globally
+To apply these rules across **all** Claude Code sessions on your machine, run the bootstrap from the `dotfiles` directory with the `-InstallGlobally` switch:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap.ps1 -InstallGlobally
 ```
-This copies all custom agent configurations, rules, and skills into:
-- Antigravity global configuration directory: `~/.gemini/antigravity-cli/`
-- Claude Code global configuration directory: `~/.claude/`
+This copies configurations into `~/.claude/`.
