@@ -40,6 +40,8 @@ agent-bootstrap/
 - [x] Updated `README.md` — removed all Gemini/Antigravity references
 - [x] Cleaned `.gitignore` — removed `.gemini/` entry
 - [x] Verified no Antigravity references remain in any tracked file
+- [x] Created `CHANGELOG.md` using Keep a Changelog format (Rule 6 compliance)
+- [x] Added Pixi detection to `verify-project.ps1` — uses `pixi run lint`/`pixi run test` when `pixi.toml` is present, falls through to raw binaries otherwise
 
 ### Rules in CLAUDE.md
 
@@ -64,5 +66,3 @@ agent-bootstrap/
 ## Pending / Future Work
 
 - [ ] Add `.claude/commands/` example slash commands to the scaffold (e.g. `/verify`, `/spec-update`)
-- [ ] Consider CHANGELOG.md — currently absent from this repo
-- [ ] Evaluate whether `verify-project.ps1` should support Pixi-detected environments explicitly (currently falls through to raw linter binaries)

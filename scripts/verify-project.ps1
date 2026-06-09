@@ -83,13 +83,19 @@ function Verify-Node {
 function Verify-Python {
     if (-not ((Test-Path "requirements.txt") -or (Test-Path "pyproject.toml") -or (Test-Path "setup.py"))) { return $false }
     Write-Host "[i] Python project detected." -ForegroundColor Cyan
-    
+
+    # When Pixi is present, Verify-Pixi handles linting and tests
+    if ((Test-Path "pixi.toml") -and (Get-Command "pixi" -ErrorAction SilentlyContinue)) {
+        Write-Host "[i] Pixi detected - linting and tests delegated to Verify-Pixi." -ForegroundColor Cyan
+        return $true
+    }
+
     if (Get-Command "flake8" -ErrorAction SilentlyContinue) {
         Invoke-External -Name "flake8" -Command { flake8 . }
     } elseif (Get-Command "pylint" -ErrorAction SilentlyContinue) {
         Invoke-External -Name "pylint" -Command { pylint . }
     }
-    
+
     if (Get-Command "pytest" -ErrorAction SilentlyContinue) {
         Invoke-External -Name "pytest" -Command { pytest --cov }
     }
@@ -105,6 +111,26 @@ function Verify-DotNet {
     
     Invoke-External -Name "dotnet format" -Command { dotnet format --verify-no-changes }
     Invoke-External -Name "dotnet test" -Command { dotnet test /p:CollectCoverage=true }
+    return $true
+}
+
+# Pixi environment verification (language-agnostic; takes priority over raw binary checks)
+function Verify-Pixi {
+    if (-not (Test-Path "pixi.toml")) { return $false }
+    Write-Host "[i] Pixi environment detected." -ForegroundColor Cyan
+
+    if (-not (Get-Command "pixi" -ErrorAction SilentlyContinue)) {
+        Write-Warning "[-] pixi.toml found but 'pixi' is not in PATH. Falling through to raw linter checks."
+        return $false
+    }
+
+    $pixiToml = Get-Content "pixi.toml" -Raw
+    if ($pixiToml -match '(?m)^\s*lint\s*=') {
+        Invoke-External -Name "pixi run lint" -Command { pixi run lint }
+    }
+    if ($pixiToml -match '(?m)^\s*test\s*=') {
+        Invoke-External -Name "pixi run test" -Command { pixi run test }
+    }
     return $true
 }
 
@@ -192,10 +218,11 @@ Scan-Secrets
 Verify-GitAndWorkflow
 
 $projectDetected = $false
-if (Verify-Node) { $projectDetected = $true }
+if (Verify-Pixi)   { $projectDetected = $true }
+if (Verify-Node)   { $projectDetected = $true }
 if (Verify-Python) { $projectDetected = $true }
 if (Verify-DotNet) { $projectDetected = $true }
-if (Verify-Go) { $projectDetected = $true }
+if (Verify-Go)     { $projectDetected = $true }
 
 if (-not $projectDetected) {
     Write-Host "No supported package environments (Node, Python, .NET, Go) detected in root path. Running standalone validations only." -ForegroundColor Yellow
